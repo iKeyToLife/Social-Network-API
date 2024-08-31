@@ -32,12 +32,17 @@ const userSchema = new Schema(
     }
 );
 
-// Save unique field
-userSchema.index({ username: 1 }, { unique: true, collation: { locale: 'en', strength: 2 } });
 
 // Convert email to lowercase before saving and finding
-userSchema.pre('save', function (next) {
+userSchema.pre('save', async function (next) {
     this.email = this.email.toLowerCase();
+
+    // check unique username
+    const existingUser = await User.findOne({ username: { $regex: new RegExp(`^${this.username}$`, 'i') } });
+    if (existingUser) {
+        return next(new Error('Username already exists with different case.'));
+    }
+
     next();
 });
 
