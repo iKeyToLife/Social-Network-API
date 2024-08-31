@@ -10,19 +10,12 @@ const thoughtSchema = new Schema(
             minLength: 1,
             maxLength: 280
         },
-        email: {
-            type: String,
-            required: true,
-            unique: true,
-            match: [/^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$/, 'Please fill a valid email address']
-        },
         createdAt: {
             type: Date,
             default: Date.now,
         },
         username: {
             type: String,
-            ref: 'user',
             required: true,
         },
         reactions: [reactionSchema]

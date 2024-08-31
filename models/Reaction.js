@@ -13,7 +13,6 @@ const reactionSchema = new Schema(
         },
         username: {
             type: String,
-            ref: 'user',
             required: true,
         },
         createdAt: {
