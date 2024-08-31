@@ -32,6 +32,23 @@ const userSchema = new Schema(
     }
 );
 
+// Save unique field
+userSchema.index({ username: 1 }, { unique: true, collation: { locale: 'en', strength: 2 } });
+
+// Convert email to lowercase before saving and finding
+userSchema.pre('save', function (next) {
+    this.email = this.email.toLowerCase();
+    next();
+});
+
+userSchema.pre('findOne', function (next) {
+    const email = this.getQuery().email;
+    if (email) {
+        this.getQuery().email = email.toLowerCase();
+    }
+    next();
+});
+
 // Create a virtual property friendCount return count friends
 userSchema
     .virtual('friendCount')
