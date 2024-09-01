@@ -1,5 +1,6 @@
 const { Schema, model } = require('mongoose');
 const reactionSchema = require('./Reaction');
+const User = require('./User');
 
 // Schema to create User model
 const thoughtSchema = new Schema(
@@ -28,6 +29,17 @@ const thoughtSchema = new Schema(
         id: false,
     }
 );
+
+thoughtSchema.pre('save', async function (next) {
+
+    // check unique username
+    const existingUser = await User.findOne({ username: { $regex: new RegExp(`^${this.username}$`, 'i') } });
+    if (!existingUser) {
+        return next(new Error('Username not found.'));
+    }
+    this.username = existingUser.username;
+    next();
+});
 
 // Create a virtual property reactionCount return count friends
 thoughtSchema

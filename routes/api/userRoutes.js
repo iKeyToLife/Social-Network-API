@@ -2,7 +2,7 @@ const router = require('express').Router();
 const {
   getUsers,
   createUser,
-  gitSingleUser,
+  getSingleUser,
   deleteUser,
   updateUser,
   addFriend,
@@ -16,7 +16,7 @@ router.route('/')
 
 // /api/users/:userId
 router.route('/:userId')
-  .get(gitSingleUser)
+  .get(getSingleUser)
   .delete(deleteUser)
   .put(updateUser);
 

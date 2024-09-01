@@ -14,7 +14,7 @@ module.exports = {
   },
 
   // find user by id
-  async gitSingleUser(req, res) {
+  async getSingleUser(req, res) {
     try {
       const user = await User.findById(req.params.userId)
         .populate('thoughts')
@@ -49,7 +49,7 @@ module.exports = {
       if (!user) {
         return res.json({ message: "User not found" });
       }
-      res.json(user)
+      res.json({ message: `user deleted` })
     } catch (err) {
       res.status(500).json({ message: 'Server error', error: err });
     }
@@ -106,7 +106,7 @@ module.exports = {
         res.status(404).json({ message: 'User not found' });
       }
 
-      res.json(user);
+      res.json({ message: 'friend is removed' });
     } catch (err) {
       res.status(500).json({ message: 'Server error', error: err });
     }
