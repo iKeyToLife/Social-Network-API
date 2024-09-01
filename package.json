@@ -4,8 +4,9 @@
   "description": "- [Description](#description)\r - [User Story](#user-story)\r - [Acceptance Criteria](#acceptance-criteria)\r - [Mock-Up](#mock-up)\r - [Installation](#installation)\r - [Usage](#usage)\r - [Key Features](#key-features)\r - [Technologies](#technologies)\r - [Repository Link](#repository-link)\r - [Video Application](#video-application)",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js --watchAll",
-    "seed": "node utils/seed.js"
+    "start": "node server.js",
+    "seed": "node utils/seed.js",
+    "watch": "nodemon server.js"
   },
   "keywords": [],
   "author": "",
@@ -14,5 +15,8 @@
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "mongoose": "^8.6.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
   }
 }

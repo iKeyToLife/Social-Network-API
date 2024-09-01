@@ -1,4 +1,5 @@
 const { Schema, model } = require('mongoose');
+const Thought = require('./Thought');
 
 // Schema to create User model
 const userSchema = new Schema(
@@ -41,6 +42,54 @@ userSchema.pre('save', async function (next) {
     const existingUser = await User.findOne({ username: { $regex: new RegExp(`^${this.username}$`, 'i') } });
     if (existingUser) {
         return next(new Error('Username already exists with different case.'));
+    }
+
+    next();
+});
+
+userSchema.pre('findOneAndUpdate', async function (next) {
+    try {
+        const previousUser = await User.findOne(this.getQuery()); // find prevUser
+        if (!previousUser) {
+            throw new Error('User not found');
+        }
+        const update = this.getUpdate();
+
+        // email to lower case
+        if (update.email) {
+            update.email = update.email.toLowerCase();
+        }
+
+        // check unique username
+        if (update.username) {
+            const existingUser = await User.findOne({ username: { $regex: new RegExp(`^${update.username}$`, 'i') } });
+            if (existingUser) {
+                return next(new Error('Username already exists with different case.'));
+            }
+        }
+
+        // update Thought.username, if update username
+        if (update.username) {
+            if (previousUser && previousUser.username !== update.username) {
+                await Thought.updateMany(
+                    { username: new RegExp(`^${previousUser.username}$`, 'i') }, // find all Thought with prevUser.username
+                    { $set: { username: update.username } } // update username
+                );
+            }
+        }
+
+        next();
+    } catch (error) {
+        return next(error);
+    }
+});
+
+userSchema.pre('findOneAndDelete', async function (next) {
+    const user = await this.model.findOne(this.getQuery());
+
+    if (user) {
+        // delete all thought if found user
+        await Thought.deleteMany({ username: { $regex: new RegExp(`^${user.username}$`, 'i') } });
     }
 
     next();
