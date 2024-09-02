@@ -42,7 +42,7 @@ module.exports = {
       const thought = await Thought.findOneAndDelete({ _id: req.params.thoughtId });
 
       if (!thought) {
-        res.status(404).json({ message: 'No thought with that ID' });
+        return res.status(404).json({ message: 'No thought with that ID' });
       }
 
       res.json({ message: 'Thought deleted!' });
@@ -54,13 +54,13 @@ module.exports = {
   async updateThought(req, res) {
     try {
       const thought = await Thought.findOneAndUpdate(
-        { _id: req.params.ThoughtId },
+        { _id: req.params.thoughtId },
         { $set: req.body },
         { runValidators: true, new: true }
       );
 
       if (!thought) {
-        res.status(404).json({ message: 'No thought with this id!' });
+        return res.status(404).json({ message: 'No thought with this id!' });
       }
 
       res.json(thought);
@@ -73,13 +73,13 @@ module.exports = {
   async createReaction(req, res) {
     try {
       const thought = await Thought.findOneAndUpdate(
-        { _id: req.params.ThoughtId },
+        { _id: req.params.thoughtId },
         { $addToSet: { reactions: req.body } },
         { runValidators: true, new: true }
       );
 
       if (!thought) {
-        res.status(404).json({ message: 'Thought not found' });
+        return res.status(404).json({ message: 'Thought not found' });
       };
 
       res.json(thought);
@@ -92,16 +92,21 @@ module.exports = {
   async removeReaction(req, res) {
     try {
       const thought = await Thought.findOneAndUpdate(
-        { _id: req.params.userId },
-        { $pull: { reactions: req.params.thoughtId } },
-        { new: true, runValidators: true }
+        { _id: req.params.thoughtId },
+        { $pull: { reactions: { _id: req.params.reactionId } } },
+        { new: false, runValidators: true }
       );
 
       if (!thought) {
-        res.status(404).json({ message: 'Thought not found' });
+        return res.status(404).json({ message: 'Thought not found' });
       };
 
-      res.json(thought);
+      const isDeleted = thought.reactions.some(reaction => reaction._id.toString() === req.params.reactionId);
+      if (!isDeleted) {
+        return res.status(404).json({ message: 'Reaction not found, nothing was deleted.' });
+      }
+
+      res.json({ message: 'Reaction is removed', thought });
     } catch (err) {
       res.status(500).json({ message: 'Server error', error: err });
     }

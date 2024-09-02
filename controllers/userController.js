@@ -21,7 +21,7 @@ module.exports = {
         .populate('friends');
 
       if (!user) {
-        res.json({ message: "User not found" })
+        return res.status(404).json({ message: "User not found" })
       }
 
       res.json(user);
@@ -47,7 +47,7 @@ module.exports = {
     try {
       const user = await User.findOneAndDelete({ _id: req.params.userId });
       if (!user) {
-        return res.json({ message: "User not found" });
+        return res.status(404).json({ message: "User not found" });
       }
       res.json({ message: `user deleted` })
     } catch (err) {
@@ -84,7 +84,7 @@ module.exports = {
       );
 
       if (!user) {
-        res.status(404).json({ message: 'User not found' });
+        return res.status(404).json({ message: 'User not found' });
       }
 
       res.json(user);
@@ -103,7 +103,12 @@ module.exports = {
       );
 
       if (!user) {
-        res.status(404).json({ message: 'User not found' });
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      const isDeleted = user.friends.some(friend => friend._id.toString() === req.params.friendId);
+      if (!isDeleted) {
+        return res.status(404).json({ message: 'Friend not found, nothing was deleted.' });
       }
 
       res.json({ message: 'friend is removed' });
