@@ -50,19 +50,24 @@ thoughtSchema.pre('save', async function (next) {
 thoughtSchema.pre('findOneAndUpdate', async function (next) {
 
     const update = this.getUpdate();
-    if (update.$set.username) {
-        update.$set.username = this.username;
+    const query = this.getQuery();
+    const existingThought = await this.model.findOne(query);
+
+    if (update.$set) {
+        update.$set.username = existingThought.username;
     }
 
+
     if (update.$addToSet && update.$addToSet.reactions) {
-        const user = update.$addToSet.reactions.username;
-        const existingUser = await User.findOne({ username: { $regex: new RegExp(`^${user}$`, 'i') } },);
+        const existingUser = await User.findOne({ username: { $regex: new RegExp(`^${existingThought.username}$`, 'i') } },);
         if (!existingUser) {
             return next(new Error('Username not found.'));
         } else {
             update.$addToSet.reactions.username = existingUser.username;
+            next();
         }
     }
+
 
     next();
 });

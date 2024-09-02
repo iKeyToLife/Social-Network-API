@@ -1,5 +1,4 @@
 const { Schema, model } = require('mongoose');
-const Thought = require('./Thought');
 
 // Schema to create User model
 const userSchema = new Schema(
@@ -56,27 +55,29 @@ userSchema.pre('findOneAndUpdate', async function (next) {
         const update = this.getUpdate();
 
         // email to lower case
-        if (update.email) {
-            update.email = update.email.toLowerCase();
-        }
+        if (update.$set) {
+            update.$set.email = update.$set.email.toLowerCase();
 
-        // check unique username
-        if (update.username) {
-            const existingUser = await User.findOne({ username: { $regex: new RegExp(`^${update.username}$`, 'i') } });
-            if (existingUser) {
-                return next(new Error('Username already exists with different case.'));
+            // check unique username
+            if (update.$set.username && update.$set.username !== previousUser.username) {
+                const existingUser = await User.findOne({ username: { $regex: new RegExp(`^${update.$set.username}$`, 'i') } });
+                if (existingUser) {
+                    return next(new Error('Username already exists with different case.'));
+                }
+            }
+
+            // update Thought.username, if update username
+            if (update.$set.username) {
+                if (previousUser && previousUser.username !== update.$set.username) {
+                    const Thought = require('./Thought');
+                    await Thought.updateMany(
+                        { username: new RegExp(`^${previousUser.username}$`, 'i') }, // find all Thought with prevUser.username
+                        { $set: { username: update.$set.username } } // update username
+                    );
+                }
             }
         }
 
-        // update Thought.username, if update username
-        if (update.username) {
-            if (previousUser && previousUser.username !== update.username) {
-                await Thought.updateMany(
-                    { username: new RegExp(`^${previousUser.username}$`, 'i') }, // find all Thought with prevUser.username
-                    { $set: { username: update.username } } // update username
-                );
-            }
-        }
 
         next();
     } catch (error) {
@@ -85,14 +86,20 @@ userSchema.pre('findOneAndUpdate', async function (next) {
 });
 
 userSchema.pre('findOneAndDelete', async function (next) {
-    const user = await this.model.findOne(this.getQuery());
+    try {
+        const user = await this.model.findOne(this.getQuery());
 
-    if (user) {
-        // delete all thought if found user
-        await Thought.deleteMany({ username: { $regex: new RegExp(`^${user.username}$`, 'i') } });
+        if (user) {
+            const Thought = require('./Thought');
+            // delete all thought if found user
+            await Thought.deleteMany({ username: { $regex: new RegExp(`^${user.username}$`, 'i') } });
+        }
+
+        next();
+
+    } catch (error) {
+        next(error)
     }
-
-    next();
 });
 
 userSchema.pre('findOne', function (next) {
