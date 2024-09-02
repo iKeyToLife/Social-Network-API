@@ -51,7 +51,7 @@ userSchema.pre('findOneAndUpdate', async function (next) {
     try {
         const previousUser = await User.findOne(this.getQuery()); // find prevUser
         if (!previousUser) {
-            throw new Error('User not found');
+            return next();
         }
         const update = this.getUpdate();
 
