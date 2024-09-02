@@ -33,10 +33,15 @@ const thoughtSchema = new Schema(
 thoughtSchema.pre('save', async function (next) {
 
     // check unique username
-    const existingUser = await User.findOne({ username: { $regex: new RegExp(`^${this.username}$`, 'i') } });
+    const existingUser = await User.findOneAndUpdate(
+        { username: { $regex: new RegExp(`^${this.username}$`, 'i') } },
+        { $push: { thoughts: this._id } }, // add id new thought
+        { new: true }
+    );
     if (!existingUser) {
         return next(new Error('Username not found.'));
     }
+
     this.username = existingUser.username;
     next();
 });
