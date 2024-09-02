@@ -59,7 +59,7 @@ thoughtSchema.pre('findOneAndUpdate', async function (next) {
 
 
     if (update.$addToSet && update.$addToSet.reactions) {
-        const existingUser = await User.findOne({ username: { $regex: new RegExp(`^${existingThought.username}$`, 'i') } },);
+        const existingUser = await User.findOne({ username: { $regex: new RegExp(`^${update.$addToSet.reactions.username}$`, 'i') } },);
         if (!existingUser) {
             return next(new Error('Username not found.'));
         } else {
