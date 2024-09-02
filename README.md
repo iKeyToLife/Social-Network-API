@@ -102,4 +102,4 @@ To install the application, follow these steps:
 [Social Network API Repository](https://github.com/iKeyToLife/Social-Network-API)
 
 ## Video Application
-[Social Network API Video Application]()
+[Social Network API Video Application](https://watch.screencastify.com/v/GxlPJ5Q14s0kVMHu62J1)
