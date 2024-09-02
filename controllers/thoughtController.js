@@ -100,11 +100,6 @@ module.exports = {
         return res.status(404).json({ message: 'Thought not found' });
       };
 
-      const isDeleted = thought.reactions.some(reaction => reaction._id.toString() === req.params.reactionId);
-      if (!isDeleted) {
-        return res.status(404).json({ message: 'Reaction not found, nothing was deleted.' });
-      }
-
       res.json({ message: 'Reaction is removed', thought });
     } catch (err) {
       res.status(500).json({ message: 'Server error', error: err });

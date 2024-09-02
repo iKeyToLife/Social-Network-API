@@ -106,12 +106,7 @@ module.exports = {
         return res.status(404).json({ message: 'User not found' });
       }
 
-      const isDeleted = user.friends.some(friend => friend._id.toString() === req.params.friendId);
-      if (!isDeleted) {
-        return res.status(404).json({ message: 'Friend not found, nothing was deleted.' });
-      }
-
-      res.json({ message: 'friend is removed' });
+      res.json({ message: 'friend is removed', user });
     } catch (err) {
       res.status(500).json({ message: 'Server error', error: err });
     }
