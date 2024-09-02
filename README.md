@@ -75,7 +75,13 @@ To install the application, follow these steps:
 
 ## Usage
 
-`//TODO//`
+1. Use the following command to seed the MongoDB database.
+   ```bash
+   npm run seed
+2. Start the server:
+   ```bash
+   npm start
+3. Use a tool like Insomnia to test the API routes.
 
 ## Key Features
 
