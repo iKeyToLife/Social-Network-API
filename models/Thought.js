@@ -18,7 +18,6 @@ const thoughtSchema = new Schema(
         username: {
             type: String,
             required: true,
-            immutable: true,
         },
         reactions: [reactionSchema]
     },
@@ -51,7 +50,10 @@ thoughtSchema.pre('save', async function (next) {
 thoughtSchema.pre('findOneAndUpdate', async function (next) {
 
     const update = this.getUpdate();
-    console.log(update)
+    if (update.$set.username) {
+        update.$set.username = this.username;
+    }
+
     if (update.$addToSet && update.$addToSet.reactions) {
         const user = update.$addToSet.reactions.username;
         const existingUser = await User.findOne({ username: { $regex: new RegExp(`^${user}$`, 'i') } },);
